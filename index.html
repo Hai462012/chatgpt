@@ -33,10 +33,9 @@
             border-bottom: 1px solid #444;
         }
 
-        header input {
-            background: #444; border: 1px solid #555;
-            color: white; padding: 8px 12px;
-            border-radius: 5px; width: 300px;
+        header strong {
+            font-size: 1.2rem;
+            color: var(--accent);
         }
 
         header button {
@@ -126,10 +125,7 @@
 <body>
 
 <header>
-    <div>
-        <strong>AI Chat by DevHai</strong>
-        <input type="password" id="apiKey" placeholder="Nhập Gemini API Key vào đây..." onchange="saveKey()">
-    </div>
+    <strong>✨ AI Chat by DevHai</strong>
     <button onclick="clearChat()">Xóa lịch sử Chat</button>
 </header>
 
@@ -145,26 +141,22 @@
 </div>
 
 <script>
-    // Mảng lưu trữ toàn bộ lịch sử để tạo ngữ cảnh cho AI
+    // ==========================================
+    // DÁN API KEY CỦA BẠN VÀO GIỮA 2 DẤU NGOẶC KÉP BÊN DƯỚI
+    // ==========================================
+    const MY_API_KEY = "AQ.Ab8RN6JhCiQcwk_V7GCa7yg1EvLkv0raoyv2IxyPuddNc393Tg"; 
+    // ==========================================
+
     let chatHistory = [];
 
-    // Khôi phục API Key từ bộ nhớ trình duyệt nếu có
     window.onload = function() {
-        const savedKey = localStorage.getItem('geminiApiKey');
-        if (savedKey) document.getElementById('apiKey').value = savedKey;
-        appendMessage("model", "Chào bạn! Mình là AI Assistant. Hãy nhập API Key ở phía trên để bắt đầu trò chuyện nhé.");
+        appendMessage("model", "Chào bạn! Mình là AI Assistant được tạo ra bởi DevHai. Mình đã sẵn sàng trò chuyện, bạn cứ hỏi thoải mái nhé!");
     };
 
-    function saveKey() {
-        const key = document.getElementById('apiKey').value;
-        localStorage.setItem('geminiApiKey', key);
-    }
-
-    // Hàm format định dạng in đậm, code block và xuống dòng
     function formatText(text) {
-        let formatted = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>'); // Format code
-        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // In đậm
-        formatted = formatted.replace(/\n/g, '<br>'); // Xuống dòng
+        let formatted = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        formatted = formatted.replace(/\n/g, '<br>');
         return formatted;
     }
 
@@ -185,35 +177,32 @@
     }
 
     async function sendMessage() {
-        const apiKey = document.getElementById('apiKey').value.trim();
         const messageInput = document.getElementById('message');
         const userText = messageInput.value.trim();
 
-        if (!apiKey) { alert("Vui lòng nhập API Key!"); return; }
+        if (!MY_API_KEY || MY_API_KEY === "DÁN_API_KEY_CỦA_BẠN_VÀO_ĐÂY") { 
+            alert("DevHai ơi, bạn quên dán API Key vào code kìa!"); 
+            return; 
+        }
         if (!userText) return;
 
-        // 1. Hiển thị tin nhắn của User
         appendMessage("user", userText);
         messageInput.value = "";
-
-        // 2. Thêm vào lịch sử (Ngữ cảnh)
         chatHistory.push({ role: "user", parts: [{ text: userText }] });
 
-        // Hiển thị đang gõ...
         const loadingId = "loading-" + Date.now();
         const chatContainer = document.getElementById('chat-container');
         chatContainer.innerHTML += `<div id="${loadingId}" class="message model"><div class="bubble" style="color: #aaa;"><i>AI đang suy nghĩ...</i></div></div>`;
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
         try {
-            // Sử dụng gemini-1.5-pro (hoặc gemini-pro tùy bạn)
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`;
+            // Sử dụng trực tiếp biến MY_API_KEY
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${MY_API_KEY}`;
             
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    // Thiết lập danh tính bí mật cho AI (System Instruction)
                     systemInstruction: {
                         parts: [{ 
                             text: "Bạn là một trợ lý AI thông minh và lịch sự. NẾU người dùng hỏi ai đã tạo ra bạn, bạn từ đâu ra, hoặc ai là chủ của bạn, bạn BẮT BUỘC phải trả lời rõ ràng: 'Tôi được tạo ra bởi DevHai (Lê Trường Hải) - một lập trình viên tuyệt vời!' và tuyệt đối không nhắc đến Google hay công ty nào khác. Các câu hỏi khác bạn trả lời bình thường." 
@@ -228,14 +217,10 @@
 
             if (data.error) {
                 appendMessage("model", `Lỗi: ${data.error.message}`);
-                chatHistory.pop(); // Xóa câu hỏi vừa rồi khỏi lịch sử nếu lỗi
+                chatHistory.pop();
             } else {
                 const aiText = data.candidates[0].content.parts[0].text;
-                
-                // 3. Hiển thị câu trả lời
                 appendMessage("model", aiText);
-                
-                // 4. Lưu câu trả lời của AI vào lịch sử
                 chatHistory.push({ role: "model", parts: [{ text: aiText }] });
             }
             
@@ -246,7 +231,6 @@
         }
     }
 
-    // Gửi bằng phím Enter
     document.getElementById("message").addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             event.preventDefault();
