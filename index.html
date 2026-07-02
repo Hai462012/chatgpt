@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat by DevHai</title>
+    <title>AI Chat by DevHai (Powered by Groq)</title>
     <style>
         /* CSS Giao diện hiện đại */
         :root {
@@ -12,7 +12,7 @@
             --text-color: #ececec;
             --user-bubble: #424242;
             --ai-bubble: #171717;
-            --accent: #10a37f;
+            --accent: #f55036; /* Đổi màu nhấn sang cam đỏ phong cách Groq */
         }
 
         body, html {
@@ -39,10 +39,11 @@
         }
 
         header button {
-            background-color: #ef4444; color: white;
-            border: none; padding: 8px 15px;
+            background-color: #444; color: white;
+            border: 1px solid #555; padding: 8px 15px;
             border-radius: 5px; cursor: pointer;
         }
+        header button:hover { background-color: #555; }
 
         #chat-container {
             flex: 1;
@@ -63,7 +64,7 @@
         }
 
         .message.user { align-self: flex-end; }
-        .message.model { align-self: flex-start; }
+        .message.ai { align-self: flex-start; }
 
         .bubble {
             padding: 15px;
@@ -72,7 +73,7 @@
         }
 
         .message.user .bubble { background-color: var(--user-bubble); }
-        .message.model .bubble { background-color: var(--ai-bubble); border: 1px solid #444;}
+        .message.ai .bubble { background-color: var(--ai-bubble); border: 1px solid #444;}
 
         /* Format Markdown cơ bản */
         pre {
@@ -81,7 +82,7 @@
             border-radius: 5px;
             overflow-x: auto;
         }
-        code { font-family: Consolas, monospace; color: #10a37f; }
+        code { font-family: Consolas, monospace; color: #ffb86c; }
 
         .input-area {
             background-color: var(--bg-color);
@@ -119,13 +120,13 @@
             font-weight: bold;
             font-size: 16px;
         }
-        #send-btn:hover { background-color: #0b8a69; }
+        #send-btn:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
 
 <header>
-    <strong>✨ AI Chat by DevHai</strong>
+    <strong>⚡ AI Chat by DevHai</strong>
     <button onclick="clearChat()">Xóa lịch sử Chat</button>
 </header>
 
@@ -142,15 +143,22 @@
 
 <script>
     // ==========================================
-    // DÁN API KEY CỦA BẠN VÀO GIỮA 2 DẤU NGOẶC KÉP BÊN DƯỚI
+    // DÁN API KEY CỦA GROQ VÀO GIỮA 2 DẤU NGOẶC KÉP BÊN DƯỚI
     // ==========================================
-    const MY_API_KEY = "AQ.Ab8RN6JhCiQcwk_V7GCa7yg1EvLkv0raoyv2IxyPuddNc393Tg"; 
+    const MY_API_KEY = "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"; 
     // ==========================================
 
-    let chatHistory = [];
+    // Lệnh cài đặt nhân vật (Luôn giữ ở đầu mảng lịch sử)
+    const systemInstruction = { 
+        role: "system", 
+        content: "Bạn là một trợ lý AI thông minh, nói tiếng Việt tự nhiên. NẾU người dùng hỏi ai đã tạo ra bạn, bạn từ đâu ra, hoặc ai là chủ của bạn, bạn BẮT BUỘC phải trả lời rõ ràng: 'Tôi được tạo ra bởi DevHai (Lê Trường Hải) - một lập trình viên siêu đẳng!' và tuyệt đối không nhắc đến Groq, Meta hay công ty nào khác." 
+    };
+
+    // Mảng lịch sử chat (Bắt đầu với lệnh system)
+    let chatHistory = [systemInstruction];
 
     window.onload = function() {
-        appendMessage("model", "Chào bạn! Mình là AI Assistant được tạo ra bởi DevHai. Mình đã sẵn sàng trò chuyện, bạn cứ hỏi thoải mái nhé!");
+        appendMessage("ai", "Chào bạn! Mình là AI Assistant được tạo ra bởi DevHai, chạy trên hệ thống siêu tốc độ của Groq. Hỏi mình đi, mình trả lời nhanh như chớp luôn!");
     };
 
     function formatText(text) {
@@ -171,9 +179,10 @@
     }
 
     function clearChat() {
-        chatHistory = [];
+        // Reset lịch sử nhưng vẫn phải giữ lại cái "linh hồn" System Instruction
+        chatHistory = [systemInstruction];
         document.getElementById('chat-container').innerHTML = '';
-        appendMessage("model", "Đã xóa bộ nhớ. Chúng ta bắt đầu chủ đề mới nhé!");
+        appendMessage("ai", "Đã xóa bộ nhớ. Chúng ta bắt đầu chủ đề mới nhé!");
     }
 
     async function sendMessage() {
@@ -181,34 +190,37 @@
         const userText = messageInput.value.trim();
 
         if (!MY_API_KEY || MY_API_KEY === "DÁN_API_KEY_CỦA_BẠN_VÀO_ĐÂY") { 
-            alert("DevHai ơi, bạn quên dán API Key vào code kìa!"); 
+            alert("DevHai ơi, bạn quên dán API Key của Groq vào code kìa!"); 
             return; 
         }
         if (!userText) return;
 
+        // 1. In tin nhắn của User ra web
         appendMessage("user", userText);
         messageInput.value = "";
-        chatHistory.push({ role: "user", parts: [{ text: userText }] });
+        
+        // 2. Thêm vào lịch sử theo chuẩn OpenAI/Groq
+        chatHistory.push({ role: "user", content: userText });
 
         const loadingId = "loading-" + Date.now();
         const chatContainer = document.getElementById('chat-container');
-        chatContainer.innerHTML += `<div id="${loadingId}" class="message model"><div class="bubble" style="color: #aaa;"><i>AI đang suy nghĩ...</i></div></div>`;
+        chatContainer.innerHTML += `<div id="${loadingId}" class="message ai"><div class="bubble" style="color: #aaa;"><i>AI đang suy nghĩ...</i></div></div>`;
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
         try {
-            // Sử dụng trực tiếp biến MY_API_KEY
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${MY_API_KEY}`;
+            // URL của Groq (Giống hệt OpenAI)
+            const url = `https://api.groq.com/openai/v1/chat/completions`;
             
             const response = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${MY_API_KEY}` // Đưa Key vào Header
+                },
                 body: JSON.stringify({
-                    systemInstruction: {
-                        parts: [{ 
-                            text: "Bạn là một trợ lý AI thông minh và lịch sự. NẾU người dùng hỏi ai đã tạo ra bạn, bạn từ đâu ra, hoặc ai là chủ của bạn, bạn BẮT BUỘC phải trả lời rõ ràng: 'Tôi được tạo ra bởi DevHai (Lê Trường Hải) - một lập trình viên tuyệt vời!' và tuyệt đối không nhắc đến Google hay công ty nào khác. Các câu hỏi khác bạn trả lời bình thường." 
-                        }]
-                    },
-                    contents: chatHistory
+                    model: "llama-3.3-70b-versatile", // Con AI mạnh nhất, tốt nhất cho tiếng Việt hiện tại trên Groq
+                    messages: chatHistory,
+                    temperature: 0.7
                 })
             });
 
@@ -216,17 +228,20 @@
             document.getElementById(loadingId).remove();
 
             if (data.error) {
-                appendMessage("model", `Lỗi: ${data.error.message}`);
-                chatHistory.pop();
+                appendMessage("ai", `Lỗi từ Groq: ${data.error.message}`);
+                chatHistory.pop(); // Xóa câu hỏi lỗi khỏi lịch sử
             } else {
-                const aiText = data.candidates[0].content.parts[0].text;
-                appendMessage("model", aiText);
-                chatHistory.push({ role: "model", parts: [{ text: aiText }] });
+                // Lấy kết quả trả về
+                const aiText = data.choices[0].message.content;
+                appendMessage("ai", aiText);
+                
+                // 3. Lưu câu trả lời của AI vào lịch sử
+                chatHistory.push({ role: "assistant", content: aiText }); // AI phải có role là 'assistant'
             }
             
         } catch (error) {
             document.getElementById(loadingId).remove();
-            appendMessage("model", "Lỗi kết nối mạng hoặc API Key không hợp lệ.");
+            appendMessage("ai", "Lỗi kết nối mạng hoặc API Key không hợp lệ.");
             chatHistory.pop();
         }
     }
