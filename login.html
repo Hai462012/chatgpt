@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - DevHai AI</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body class="cyber-bg">
+    <div class="auth-container glass floating">
+        <h2 class="neon-text text-center" id="auth-title">ĐĂNG NHẬP</h2>
+        <form id="auth-form">
+            <div class="input-group">
+                <input type="text" id="username" required placeholder="Tên đăng nhập">
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" required placeholder="Mật khẩu">
+            </div>
+            <button type="submit" class="btn-primary glow-btn w-100" id="auth-submit">Vào Hệ Thống</button>
+        </form>
+        <p class="text-center mt-20">
+            <span id="auth-switch-text">Chưa có tài khoản?</span> 
+            <a href="#" id="auth-switch-btn" class="accent-text">Đăng ký ngay</a>
+        </p>
+    </div>
+    <div id="toast" class="glass hidden"></div>
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script>Auth.initLoginPage();</script>
+</body>
+</html>
