@@ -2,29 +2,76 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel - DevHai</title>
-    <style>
-        body { background: #0d1117; color: #c9d1d9; display: flex; justify-content: center; padding-top: 50px; font-family: sans-serif; }
-        .box { background: #161b22; padding: 30px; border-radius: 10px; border: 1px solid #30363d; width: 350px; }
-        input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #30363d; background: #0d1117; color: white; }
-        button { width: 100%; padding: 10px; background: #58a6ff; border: none; border-radius: 5px; cursor: pointer; color: white; }
-    </style>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
 </head>
-<body>
-    <div class="box">
-        <h2>Admin Control</h2>
-        <input type="password" id="pass" placeholder="Mật khẩu Admin">
-        <input type="text" id="key" placeholder="Dán Groq API Key mới">
-        <button onclick="save()">Lưu & Cập nhật</button>
-        <p style="text-align:center;"><a href="index.html" style="color:#58a6ff;">Quay lại trang Chat</a></p>
+<body class="dark-theme">
+    <div class="admin-layout">
+        <aside class="sidebar glass">
+            <h2 class="neon-text text-center mt-20">ADMIN SYSTEM</h2>
+            <nav class="admin-nav mt-20">
+                <button class="nav-btn active" data-target="dashboard">📊 Dashboard</button>
+                <button class="nav-btn" data-target="users">👥 User Manager</button>
+                <button class="nav-btn" data-target="api">🔑 API Manager</button>
+                <button class="nav-btn" data-target="logs">📜 System Logs</button>
+            </nav>
+            <div class="sidebar-footer"><a href="index.html" class="btn-primary w-100 text-center">🔙 Back to Chat</a></div>
+        </aside>
+
+        <main class="admin-content custom-scrollbar">
+            <!-- Dashboard View -->
+            <section id="dashboard" class="view-section active">
+                <h1 class="accent-text">System Overview</h1>
+                <div class="stats-grid mt-20">
+                    <div class="stat-card glass hover-float">
+                        <h3>Total Users</h3>
+                        <p id="stat-users" class="neon-text text-large">0</p>
+                    </div>
+                    <div class="stat-card glass hover-float">
+                        <h3>Total Chats</h3>
+                        <p id="stat-chats" class="neon-text text-large">0</p>
+                    </div>
+                    <div class="stat-card glass hover-float">
+                        <h3>Storage Used</h3>
+                        <p id="stat-storage" class="neon-text text-large">0 KB</p>
+                    </div>
+                    <div class="stat-card glass hover-float">
+                        <h3>API Status</h3>
+                        <p id="stat-api" class="neon-text text-large">Checking...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- API Manager View -->
+            <section id="api" class="view-section hidden">
+                <h1 class="accent-text">API Configuration</h1>
+                <div class="form-card glass mt-20">
+                    <div class="input-group">
+                        <label>Groq API Key</label>
+                        <input type="password" id="api-key-input" placeholder="gsk_...">
+                    </div>
+                    <div class="input-group">
+                        <label>Model</label>
+                        <select id="api-model" class="glass-input">
+                            <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
+                            <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Temperature (<span id="temp-val">0.7</span>)</label>
+                        <input type="range" id="api-temp" min="0" max="2" step="0.1" value="0.7">
+                    </div>
+                    <div class="flex-row gap-10 mt-20">
+                        <button class="btn-primary glow-btn" id="save-api-btn">Save Config</button>
+                        <button class="btn-secondary" id="test-api-btn">Test Connection</button>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
-    <script>
-        function save() {
-            if(document.getElementById('pass').value === "DevHai2026") {
-                localStorage.setItem('stored_api_key', document.getElementById('key').value);
-                alert("Đã lưu API Key vào trình duyệt!");
-            } else { alert("Sai mật khẩu!"); }
-        }
-    </script>
+    <div id="toast" class="glass hidden"></div>
+    <script src="js/storage.js"></script>
+    <script src="js/admin.js"></script>
 </body>
 </html>
