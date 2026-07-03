@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - DevHai</title>
+    <style>
+        body { background: #0d1117; color: #c9d1d9; display: flex; justify-content: center; padding-top: 50px; font-family: sans-serif; }
+        .box { background: #161b22; padding: 30px; border-radius: 10px; border: 1px solid #30363d; width: 350px; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #30363d; background: #0d1117; color: white; }
+        button { width: 100%; padding: 10px; background: #58a6ff; border: none; border-radius: 5px; cursor: pointer; color: white; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Admin Control</h2>
+        <input type="password" id="pass" placeholder="Mật khẩu Admin">
+        <input type="text" id="key" placeholder="Dán Groq API Key mới">
+        <button onclick="save()">Lưu & Cập nhật</button>
+        <p style="text-align:center;"><a href="index.html" style="color:#58a6ff;">Quay lại trang Chat</a></p>
+    </div>
+    <script>
+        function save() {
+            if(document.getElementById('pass').value === "DevHai2026") {
+                localStorage.setItem('stored_api_key', document.getElementById('key').value);
+                alert("Đã lưu API Key vào trình duyệt!");
+            } else { alert("Sai mật khẩu!"); }
+        }
+    </script>
+</body>
+</html>
