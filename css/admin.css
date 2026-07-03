@@ -1,0 +1,14 @@
+.admin-layout { display: flex; height: 100vh; }
+.admin-nav { display: flex; flex-direction: column; gap: 10px; padding: 0 20px; }
+.nav-btn { background: transparent; color: var(--text-primary); border: 1px solid var(--glass-border); padding: 12px; text-align: left; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+.nav-btn.active, .nav-btn:hover { background: rgba(0,255,204,0.1); border-color: var(--accent-color); box-shadow: var(--accent-glow); }
+.admin-content { flex: 1; padding: 40px; overflow-y: auto; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.stat-card { padding: 25px; text-align: center; border-radius: 15px; }
+.text-large { font-size: 2rem; font-weight: bold; margin-top: 10px; }
+.hover-float:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,255,204,0.2); }
+.form-card { padding: 30px; max-width: 600px; border-radius: 15px; }
+.input-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+.input-group input, .glass-input { padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; border-radius: 8px; outline: none; }
+.input-group input:focus { border-color: var(--accent-color); box-shadow: 0 0 5px rgba(0,255,204,0.5); }
+.flex-row { display: flex; } .gap-10 { gap: 10px; } .btn-secondary { background: transparent; border: 1px solid var(--text-secondary); color: var(--text-primary); padding: 10px 20px; border-radius: 8px; cursor: pointer; }
