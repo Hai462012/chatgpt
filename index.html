@@ -2,60 +2,58 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>AI Chat by DevHai</title>
-    <style>
-        :root { --bg: #0d1117; --panel: #161b22; --border: #30363d; --text: #c9d1d9; --accent: #58a6ff; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
-        #chat-container { max-width: 800px; margin: 40px auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-        .bubble { padding: 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); line-height: 1.6; }
-        .input-area { position: fixed; bottom: 0; width: 100%; background: var(--panel); border-top: 1px solid var(--border); padding: 20px 0; display: flex; justify-content: center; }
-        #message { width: 600px; background: #0d1117; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 6px; outline: none; }
-        #send-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; margin-left: 10px; cursor: pointer; }
-        header { padding: 20px; text-align: center; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat - Demo</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-    <header>
-        <h2 style="color: var(--accent);">AI Chat by DevHai</h2>
-        <a href="admin.html" style="color: #888; font-size: 12px;">Admin Panel</a>
-    </header>
-    <div id="chat-container"></div>
-    <div class="input-area">
-        <input type="text" id="message" placeholder="Hỏi AI điều gì đó...">
-        <button id="send-btn" onclick="sendMessage()">Gửi</button>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar glass">
+            <div class="sidebar-header">
+                <h2 class="neon-text">DEVHAI AI</h2>
+                <button id="new-chat-btn" class="btn-primary ripple">+ New Chat</button>
+            </div>
+            <div class="search-box">
+                <input type="text" id="search-chat" placeholder="Tìm kiếm đoạn chat...">
+            </div>
+            <ul id="chat-list" class="custom-scrollbar"></ul>
+            <div class="sidebar-footer">
+                <div class="user-profile" id="user-profile-btn">
+                    <img id="user-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Dev" alt="Avatar">
+                    <span id="username-display">User</span>
+                </div>
+                <button id="theme-toggle" class="icon-btn">🌓</button>
+                <a href="admin.html" class="icon-btn" id="admin-link" style="display:none;">⚙️</a>
+                <button id="logout-btn" class="icon-btn">🚪</button>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-area">
+            <header class="chat-header glass">
+                <h3 id="current-chat-title">Cuộc trò chuyện mới</h3>
+                <div class="header-actions">
+                    <button class="icon-btn" id="clear-current-chat">🗑️</button>
+                </div>
+            </header>
+            <div id="chat-box" class="custom-scrollbar">
+                <div class="welcome-screen">
+                    <h1 class="neon-text">How can I help you today?</h1>
+                </div>
+            </div>
+            <div class="input-container glass">
+                <textarea id="chat-input" placeholder="Nhập tin nhắn... (Hỗ trợ Markdown)" rows="1"></textarea>
+                <button id="send-btn" class="glow-btn">➤</button>
+            </div>
+        </main>
     </div>
 
-    <script>
-        const systemInstruction = { role: "system", content: "Bạn là trợ lý AI chuyên nghiệp. CHỈ trả lời về nguồn gốc (ai tạo ra bạn) KHI VÀ CHỈ KHI người dùng hỏi đích danh. Nếu được hỏi, đáp: 'Tôi được tạo ra bởi DevHai (Lê Trường Hải) - một lập trình viên siêu đẳng!'. Với câu hỏi khác, trả lời ngắn gọn, chuyên nghiệp, không được tự nhắc tên DevHai." };
-        let chatHistory = [systemInstruction];
+    <!-- Toast Notification -->
+    <div id="toast" class="glass hidden"></div>
 
-        async function sendMessage() {
-            const input = document.getElementById('message');
-            const MY_API_KEY = localStorage.getItem('stored_api_key');
-            if (!MY_API_KEY) { alert("Admin chưa cài đặt API Key trong trang Admin!"); return; }
-            
-            const userText = input.value.trim();
-            if (!userText) return;
-
-            // Hiển thị user
-            const container = document.getElementById('chat-container');
-            container.innerHTML += `<div class="bubble" style="background:#21262d"><b>Bạn:</b> ${userText}</div>`;
-            chatHistory.push({ role: "user", content: userText });
-            input.value = "";
-
-            try {
-                const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${MY_API_KEY}` },
-                    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: chatHistory })
-                });
-                const data = await res.json();
-                const reply = data.choices[0].message.content;
-                container.innerHTML += `<div class="bubble"><b>AI:</b> ${reply.replace(/\n/g, '<br>')}</div>`;
-                chatHistory.push({ role: "assistant", content: reply });
-                container.scrollTop = container.scrollHeight;
-            } catch (e) { alert("Lỗi kết nối!"); }
-        }
-    </script>
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/chat.js"></script>
 </body>
 </html>
