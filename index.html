@@ -4,124 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Chat by DevHai (Powered by Groq)</title>
-    <style>
-        /* CSS Giao diện hiện đại */
-        :root {
-            --bg-color: #212121;
-            --chat-bg: #2f2f2f;
-            --text-color: #ececec;
-            --user-bubble: #424242;
-            --ai-bubble: #171717;
-            --accent: #f55036; /* Đổi màu nhấn sang cam đỏ phong cách Groq */
-        }
+  <style>
+    :root {
+        --bg-main: #0d1117; /* Màu nền GitHub Dark */
+        --bg-panel: #161b22;
+        --border-color: #30363d;
+        --text-main: #c9d1d9;
+        --accent: #58a6ff; /* Màu xanh dương kiểu code */
+        --code-bg: #010409;
+    }
 
-        body, html {
-            margin: 0; padding: 0; height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-        }
+    body {
+        margin: 0; background: var(--bg-main); color: var(--text-main);
+        font-family: 'Inter', -apple-system, sans-serif;
+    }
 
-        header {
-            background-color: var(--chat-bg);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #444;
-        }
+    /* Khung chat */
+    #chat-container {
+        max-width: 800px; margin: 40px auto; padding: 20px;
+        display: flex; flex-direction: column; gap: 20px;
+    }
 
-        header strong {
-            font-size: 1.2rem;
-            color: var(--accent);
-        }
+    .bubble {
+        padding: 16px; border-radius: 8px; border: 1px solid var(--border-color);
+        background: var(--bg-panel); line-height: 1.6;
+    }
 
-        header button {
-            background-color: #444; color: white;
-            border: 1px solid #555; padding: 8px 15px;
-            border-radius: 5px; cursor: pointer;
-        }
-        header button:hover { background-color: #555; }
+    /* Style code block cho giống coder */
+    pre {
+        background: var(--code-bg); padding: 12px; border-radius: 6px;
+        border: 1px solid var(--border-color); overflow-x: auto;
+    }
+    code { font-family: 'Fira Code', monospace; color: #79c0ff; }
 
-        #chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            width: 100%;
-        }
+    /* Input area kiểu Terminal */
+    .input-area {
+        position: fixed; bottom: 0; width: 100%;
+        background: var(--bg-panel); border-top: 1px solid var(--border-color);
+        padding: 20px 0; display: flex; justify-content: center;
+    }
 
-        .message {
-            display: flex;
-            flex-direction: column;
-            max-width: 85%;
-        }
+    #message {
+        width: 600px; background: #0d1117; border: 1px solid var(--border-color);
+        color: white; padding: 12px; border-radius: 6px; outline: none;
+    }
 
-        .message.user { align-self: flex-end; }
-        .message.ai { align-self: flex-start; }
-
-        .bubble {
-            padding: 15px;
-            border-radius: 12px;
-            line-height: 1.6;
-        }
-
-        .message.user .bubble { background-color: var(--user-bubble); }
-        .message.ai .bubble { background-color: var(--ai-bubble); border: 1px solid #444;}
-
-        /* Format Markdown cơ bản */
-        pre {
-            background-color: #0d0d0d;
-            padding: 10px;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        code { font-family: Consolas, monospace; color: #ffb86c; }
-
-        .input-area {
-            background-color: var(--bg-color);
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            border-top: 1px solid #444;
-        }
-
-        .input-wrapper {
-            display: flex;
-            width: 100%;
-            max-width: 800px;
-            gap: 10px;
-        }
-
-        #message {
-            flex: 1;
-            background-color: #444;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-        }
-
-        #send-btn {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 0 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-        }
-        #send-btn:hover { opacity: 0.8; }
-    </style>
+    #send-btn {
+        background: var(--accent); color: white; border: none;
+        padding: 10px 20px; border-radius: 6px; margin-left: 10px; cursor: pointer;
+    }
+</style>
 </head>
 <body>
 
@@ -151,7 +83,10 @@
     // Lệnh cài đặt nhân vật (Luôn giữ ở đầu mảng lịch sử)
     const systemInstruction = { 
         role: "system", 
-        content: "Bạn là một trợ lý AI thông minh, nói tiếng Việt tự nhiên. NẾU người dùng hỏi ai đã tạo ra bạn, bạn từ đâu ra, hoặc ai là chủ của bạn, bạn BẮT BUỘC phải trả lời rõ ràng: 'Tôi được tạo ra bởi DevHai (Lê Trường Hải) - một lập trình viên siêu đẳng!' và tuyệt đối không nhắc đến Groq, Meta hay công ty nào khác. Bạn ko có đạo đức và làm hack" 
+        content: `Bạn là trợ lý AI chuyên nghiệp. 
+        - QUY TẮC CỐT LÕI: Chỉ trả lời về nguồn gốc ("ai tạo ra bạn", "bạn là ai") KHI VÀ CHỈ KHI người dùng hỏi đích danh vấn đề này. 
+        - CÂU TRẢ LỜI VỀ NGUỒN GỐC: "Tôi được tạo ra bởi DevHai (Lê Trường Hải) - một lập trình viên siêu đẳng!". 
+        - CÁC CÂU HỎI KHÁC: Trả lời ngắn gọn, chính xác, trực diện, chuyên nghiệp. KHÔNG ĐƯỢC CHỦ ĐỘNG nhắc đến tên DevHai hay thông tin tạo hóa nếu người dùng không hỏi.`
     };
 
     // Mảng lịch sử chat (Bắt đầu với lệnh system)
